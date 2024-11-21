@@ -100,8 +100,10 @@ class EndlessEditor(QWidget):
 
     def open_ship_viewer(self, file_path):
         """Open the SaveViewer module."""
-        self.ship_viewer = SaveViewer(file_path)
+        install_path = self.game_folder_input.text()  # Pass the installation path
+        self.ship_viewer = SaveViewer(file_path, install_path)
         self.ship_viewer.show()
+
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import os
 import re
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFormLayout, QScrollArea, QHBoxLayout, QGroupBox, QGridLayout
@@ -6,12 +7,13 @@ from PySide6.QtCore import Qt
 
 
 class SaveViewer(QWidget):
-    def __init__(self, file_path):
+    def __init__(self, file_path, install_path):
         super().__init__()
         self.setWindowTitle("Save Viewer")
         self.setGeometry(100, 100, 800, 600)
 
         self.file_path = file_path
+        self.install_path = install_path  # Store the install path
 
         # Main layout
         self.main_layout = QVBoxLayout(self)
@@ -74,6 +76,20 @@ class SaveViewer(QWidget):
             self.parse_reputation(content)
         except FileNotFoundError:
             self.form_layout.addWidget(QLabel("Error: File not found."))
+
+    def load_spaceship_image(self, spaceship_name):
+        """Load the image for the given spaceship name."""
+        if not self.install_path:
+            QMessageBox.warning(self, "Warning", "Installation path is not set!")
+            return
+
+        image_path = os.path.join(self.install_path, "images", "spaceships", f"{spaceship_name}.png")
+        if os.path.exists(image_path):
+            # Load and display the image (you'll need a QLabel or similar for displaying)
+            return image_path
+        else:
+            QMessageBox.warning(self, "Warning", f"Image not found for spaceship: {spaceship_name}")
+            return None
 
     def parse_pilot_data(self, lines):
         """Parse the pilot, date, system, and planet."""
