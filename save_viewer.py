@@ -84,6 +84,7 @@ class SaveViewer(QWidget):
 
             self.parse_pilot_data(content)
             self.parse_reputation(content)
+            self.parse_spaceships_data(content)
         except FileNotFoundError:
             self.form_layout.addWidget(QLabel("Error: File not found."))
 
@@ -104,6 +105,50 @@ class SaveViewer(QWidget):
                 self, "Warning", f"Image not found for spaceship: {spaceship_name}"
             )
             return None
+
+    def parse_spaceships_data(self, lines):
+        try:
+            index = lines.index("# What you own:\n") + 1
+        except ValueError:
+            print("'What you own:' section not found.")
+            return
+
+        while index < len(lines):
+            line = lines[index]
+
+            # Find ship section
+            if line.startswith("ship"):
+                ship_data = {"name": None, "model": None, "image": None}
+                ship_data["model"] = line.split(" ",1)[1].replace('"',"")
+
+                while (
+                    ship_data["name"] is None
+                    or ship_data["model"] is None
+                    or ship_data["image"] is None
+                ):
+
+                    if lines[index].strip().startswith("name"):
+                        ship_data["name"] = lines[index].strip().split("name ")[1].replace('"',"")
+                    if lines[index].strip().startswith("thumbnail"):
+                        image_path = lines[index].split("thumbnail",1)[1].strip().replace('"',"")
+                        ship_data["image"] = f"{self.install_path}/images/{image_path}.png"
+                    if lines[index].strip().startswith("outfits"):
+                        # TODO parse outfits
+                        pass
+
+                    index += 1
+                    
+
+                ship_item = ShipCard(
+                    image_path=ship_data["image"],
+                    title=ship_data["name"],
+                    model=ship_data["model"],
+                    description2="",
+                )
+
+                # Add the ship list to the form
+                self.form_layout.addWidget(ship_item)
+            index += 1
 
     def parse_pilot_data(self, lines):
         """Parse the pilot, date, system, and planet."""
