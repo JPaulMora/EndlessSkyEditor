@@ -1,9 +1,16 @@
 import os
 import platform
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget, QFileDialog, QMessageBox
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLineEdit,
+    QPushButton,
+    QListWidget,
+    QFileDialog,
+    QMessageBox,
 )
-from PySide6.QtCore import Qt
 from save_viewer import SaveViewer
 
 
@@ -19,7 +26,9 @@ class EndlessEditor(QWidget):
         # File browser for the game installation folder
         game_folder_layout = QHBoxLayout()
         self.game_folder_input = QLineEdit()
-        self.game_folder_input.setPlaceholderText("Select the game installation folder...")
+        self.game_folder_input.setPlaceholderText(
+            "Select the game installation folder..."
+        )
         self.game_folder_browse_button = QPushButton("Browse")
         self.game_folder_browse_button.clicked.connect(self.browse_game_folder)
         game_folder_layout.addWidget(self.game_folder_input)
@@ -49,7 +58,6 @@ class EndlessEditor(QWidget):
         # Load the initial save files
         self.load_saves()
 
-
     def get_default_save_path(self):
         """Return the default save path for Endless Sky based on the operating system."""
         system = platform.system()
@@ -61,11 +69,12 @@ class EndlessEditor(QWidget):
             return os.path.expanduser("~/Library/Application Support/endless-sky/saves")
         else:
             return ""
-        
 
     def browse_game_folder(self):
         """Browse and set the game installation folder."""
-        folder = QFileDialog.getExistingDirectory(self, "Select Game Installation Folder")
+        folder = QFileDialog.getExistingDirectory(
+            self, "Select Game Installation Folder"
+        )
         if folder:
             self.game_folder_input.setText(folder)
 
@@ -82,18 +91,24 @@ class EndlessEditor(QWidget):
         save_folder = self.save_folder_input.text()
         if os.path.isdir(save_folder):
             try:
-                save_files = [file for file in os.listdir(save_folder) if file.endswith('.txt')]
+                save_files = [
+                    file for file in os.listdir(save_folder) if file.endswith(".txt")
+                ]
                 self.save_list.addItems(save_files)
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to load save files: {e}")
         else:
-            QMessageBox.critical(self, "Error", "Save folder is invalid or does not exist!")
+            QMessageBox.critical(
+                self, "Error", "Save folder is invalid or does not exist!"
+            )
 
     def load_selected_save(self):
         """Load the selected save file and display its content."""
         selected_items = self.save_list.selectedItems()
         if selected_items:
-            save_file = os.path.join(self.save_folder_input.text(), selected_items[0].text())
+            save_file = os.path.join(
+                self.save_folder_input.text(), selected_items[0].text()
+            )
             self.open_ship_viewer(save_file)
         else:
             QMessageBox.warning(self, "Warning", "No save file selected!")
@@ -103,7 +118,6 @@ class EndlessEditor(QWidget):
         install_path = self.game_folder_input.text()  # Pass the installation path
         self.ship_viewer = SaveViewer(file_path, install_path)
         self.ship_viewer.show()
-
 
 
 if __name__ == "__main__":

@@ -1,9 +1,21 @@
 import os
 import re
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFormLayout, QScrollArea, QMessageBox, QGroupBox, QGridLayout
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QFormLayout,
+    QScrollArea,
+    QMessageBox,
+    QGroupBox,
+    QGridLayout,
 )
+
 from PySide6.QtCore import Qt
+
+from modules.ship_card import ShipCard
 
 
 class SaveViewer(QWidget):
@@ -59,12 +71,10 @@ class SaveViewer(QWidget):
         # Load and parse the file
         self.load_file()
 
-
     def toggle_reputation_section(self):
         """Show or hide the reputation section based on the checkbox state."""
         is_visible = self.reputation_checkbox.isChecked()
         self.reputation_section.setVisible(is_visible)
-
 
     def load_file(self):
         """Load and parse the file to populate editable fields."""
@@ -83,12 +93,16 @@ class SaveViewer(QWidget):
             QMessageBox.warning(self, "Warning", "Installation path is not set!")
             return
 
-        image_path = os.path.join(self.install_path, "images", "spaceships", f"{spaceship_name}.png")
+        image_path = os.path.join(
+            self.install_path, "images", "spaceships", f"{spaceship_name}.png"
+        )
         if os.path.exists(image_path):
             # Load and display the image (you'll need a QLabel or similar for displaying)
             return image_path
         else:
-            QMessageBox.warning(self, "Warning", f"Image not found for spaceship: {spaceship_name}")
+            QMessageBox.warning(
+                self, "Warning", f"Image not found for spaceship: {spaceship_name}"
+            )
             return None
 
     def parse_pilot_data(self, lines):
@@ -112,9 +126,21 @@ class SaveViewer(QWidget):
             pilot_layout.addRow("Date:", self.fields["date"])
 
         # Parse System and Planet
-        system = next((line.split(" ", 1)[1].strip() for line in lines if line.startswith("system")), None)
+        system = next(
+            (
+                line.split(" ", 1)[1].strip()
+                for line in lines
+                if line.startswith("system")
+            ),
+            None,
+        )
         planet = next(
-            (line.split(" ", 1)[1].strip().strip('"') for line in lines if line.startswith("planet")), None
+            (
+                line.split(" ", 1)[1].strip().strip('"')
+                for line in lines
+                if line.startswith("planet")
+            ),
+            None,
         )
 
         if system:
@@ -124,10 +150,12 @@ class SaveViewer(QWidget):
             self.fields["planet"] = QLineEdit(planet)
             pilot_layout.addRow("Planet:", self.fields["planet"])
 
-
     def parse_reputation(self, lines):
         """Parse the reputation section."""
-        start_index = next((i for i, line in enumerate(lines) if line.strip() == '"reputation with"'), None)
+        start_index = next(
+            (i for i, line in enumerate(lines) if line.strip() == '"reputation with"'),
+            None,
+        )
         if start_index is not None:
             index = start_index + 1
             row = 0  # Track rows in the collapsible layout
@@ -146,7 +174,9 @@ class SaveViewer(QWidget):
 
                         # Add to collapsible layout
                         self.reputation_section_layout.addWidget(faction_field, row, 0)
-                        self.reputation_section_layout.addWidget(reputation_field, row, 1)
+                        self.reputation_section_layout.addWidget(
+                            reputation_field, row, 1
+                        )
                         row += 1
                 else:
                     break
@@ -170,7 +200,14 @@ class SaveViewer(QWidget):
                     lines[i] = f'planet "{self.fields["planet"].text()}"\n'
 
             # Update reputation
-            start_index = next((i for i, line in enumerate(lines) if line.strip() == '"reputation with"'), None)
+            start_index = next(
+                (
+                    i
+                    for i, line in enumerate(lines)
+                    if line.strip() == '"reputation with"'
+                ),
+                None,
+            )
             if start_index is not None:
                 index = start_index + 1
                 while index < len(lines):
@@ -179,7 +216,9 @@ class SaveViewer(QWidget):
                         faction_field = self.fields.get(f"faction_{index}")
                         reputation_field = self.fields.get(f"reputation_{index}")
                         if faction_field and reputation_field:
-                            lines[index] = f'\t"{faction_field.text()}" {reputation_field.text()}\n'
+                            lines[index] = (
+                                f'\t"{faction_field.text()}" {reputation_field.text()}\n'
+                            )
                     else:
                         break
                     index += 1
@@ -191,10 +230,3 @@ class SaveViewer(QWidget):
             QMessageBox.information(self, "Success", "Changes saved successfully!")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save changes: {e}")
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-    viewer = ShipViewer("path/to/your/savefile.txt")
-    viewer.show()
-    app.exec()
