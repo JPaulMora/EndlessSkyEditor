@@ -114,25 +114,42 @@ class SaveViewer(QWidget):
             return
 
         while index < len(lines):
-            line = lines[index]
+            line = lines[index].strip().replace('"',"")
 
             # Find ship section
             if line.startswith("ship"):
-                ship_data = {"name": None, "model": None, "image": None}
-                ship_data["model"] = line.split(" ",1)[1].replace('"',"")
+                ship_data = {
+                    "name": None,
+                    "model": None,
+                    "image": None,
+                    "cost": 0,
+                    "shields": 0,
+                    "hull": 0,
+                    "required crew": 0,
+                    "bunks": 0,
+                    "fuel capacity": 0,
+                    "cargo space": 0,
+                    "outfit space": 0,
+                    "weapon capacity": 0,
+                    "engine capacity": 0,
+                    "outfits": {}
+                    }
+                ship_data["model"] = line.split(" ",1)[1]
 
                 while (
                     ship_data["name"] is None
                     or ship_data["model"] is None
                     or ship_data["image"] is None
                 ):
+                    line = lines[index].strip().replace('"',"")
 
-                    if lines[index].strip().startswith("name"):
-                        ship_data["name"] = lines[index].strip().split("name ")[1].replace('"',"")
-                    if lines[index].strip().startswith("thumbnail"):
-                        image_path = lines[index].split("thumbnail",1)[1].strip().replace('"',"")
+                    if line.startswith("name"):
+                        ship_data["name"] = line.split("name ")[1]
+                    if line.startswith("thumbnail"):
+                        image_path = line.split("thumbnail ",1)[1]
                         ship_data["image"] = f"{self.install_path}/images/{image_path}.png"
-                    if lines[index].strip().startswith("outfits"):
+                    
+                    if line.startswith("outfits"):
                         # TODO parse outfits
                         pass
 
@@ -148,6 +165,8 @@ class SaveViewer(QWidget):
 
                 # Add the ship list to the form
                 self.form_layout.addWidget(ship_item)
+            if line.startswith("licenses"):
+                break
             index += 1
 
     def parse_pilot_data(self, lines):
